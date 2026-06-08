@@ -1,0 +1,82 @@
+enum AttendanceStatus {
+  BOOKED
+  ATTEND
+  SKIP
+  ABSENT
+}
+
+model Student {
+  id            String   @id @default(uuid()) @db.Uuid
+  branchId      String   @db.Uuid
+  name          String
+  email         String?
+  phone         String?
+  creditBalance Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  bookings      Booking[]
+  creditLedgers StudentCreditLedger[]
+  compensations StudentCompensation[]
+
+  @@index([branchId])
+  @@index([isActive])
+  @@index([name])
+}
+
+model ClassSession {
+  id          String   @id @default(uuid()) @db.Uuid
+  branchId    String   @db.Uuid
+  teacherId   String?  @db.Uuid
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  capacity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  teacher Staff? @relation("ClassSessionTeacher", fields: [teacherId], references: [id], onDelete: SetNull)
+
+  bookings Booking[]
+
+  @@index([branchId])
+  @@index([teacherId])
+  @@index([startTime])
+}
+
+model Booking {
+  id             String           @id @default(uuid()) @db.Uuid
+  classSessionId String           @db.Uuid
+  studentId      String           @db.Uuid
+  bookedById     String?          @db.Uuid
+  markedById     String?          @db.Uuid
+  status         AttendanceStatus @default(BOOKED)
+  bookedAt       DateTime         @default(now())
+  markedAt       DateTime?
+  note           String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  classSession ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Restrict)
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  bookedBy Staff? @relation("BookingCreatedBy", fields: [bookedById], references: [id], onDelete: SetNull)
+  markedBy Staff? @relation("BookingMarkedBy", fields: [markedById], references: [id], onDelete: SetNull)
+
+  creditLedger StudentCreditLedger?
+  compensation StudentCompensation?
+  auditLogs    AttendanceAuditLog[]
+
+  @@unique([classSessionId, studentId])
+  @@index([classSessionId])
+  @@index([studentId])
+  @@index([status])
+  @@index([bookedById])
+  @@index([markedById])
+}

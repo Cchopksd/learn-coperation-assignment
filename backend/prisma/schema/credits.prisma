@@ -1,0 +1,79 @@
+enum CreditLedgerReason {
+  INITIAL_CREDIT
+  MANUAL_ADJUSTMENT
+  ATTENDANCE_ATTEND
+  ATTENDANCE_ABSENT
+}
+
+enum CompensationType {
+  MAKEUP_CLASS
+  SEAT_CREDIT
+  EXTEND_EXPIRY
+}
+
+enum CompensationStatus {
+  AVAILABLE
+  USED
+  CANCELLED
+}
+
+model StudentCreditLedger {
+  id           String             @id @default(uuid()) @db.Uuid
+  studentId    String             @db.Uuid
+  bookingId    String?            @unique @db.Uuid
+  createdById  String?            @db.Uuid
+  amount       Int
+  reason       CreditLedgerReason
+  balanceAfter Int
+  note         String?
+  createdAt    DateTime           @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  createdBy Staff? @relation("CreditLedgerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([reason])
+  @@index([createdAt])
+  @@index([createdById])
+}
+
+model StudentCompensation {
+  id        String             @id @default(uuid()) @db.Uuid
+  studentId String             @db.Uuid
+  bookingId String             @unique @db.Uuid
+  type      CompensationType   @default(MAKEUP_CLASS)
+  status    CompensationStatus @default(AVAILABLE)
+  note      String?
+  usedAt    DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([type])
+}
+
+model AttendanceAuditLog {
+  id         String           @id @default(uuid()) @db.Uuid
+  bookingId  String           @db.Uuid
+  actorId    String?          @db.Uuid
+  fromStatus AttendanceStatus
+  toStatus   AttendanceStatus
+  note       String?
+  createdAt  DateTime         @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  actor Staff? @relation("AttendanceActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([actorId])
+  @@index([createdAt])
+}
