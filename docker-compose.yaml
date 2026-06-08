@@ -48,9 +48,9 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@database:5432/${POSTGRES_DB:-school_backoffice}
       HQ_BRANCH_CODE: ${HQ_BRANCH_CODE:-HQ}
       HQ_BRANCH_NAME: ${HQ_BRANCH_NAME:-Headquarters}
-      SUPERADMIN_USERNAME: ${SUPERADMIN_USERNAME:-superadmin}
-      SUPERADMIN_DISPLAY_NAME: ${SUPERADMIN_DISPLAY_NAME:-Super Admin}
-      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:-ChangeMe123!}
+      HQ_STAFF_USERNAME: ${HQ_STAFF_USERNAME:-hq.staff}
+      HQ_STAFF_DISPLAY_NAME: ${HQ_STAFF_DISPLAY_NAME:-HQ Staff}
+      HQ_STAFF_PASSWORD: ${HQ_STAFF_PASSWORD:-ChangeMe123!}
     command:
       ["sh", "-c", "npm run prisma:migrate:deploy && npm run prisma:seed"]
     depends_on:

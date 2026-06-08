@@ -1,7 +1,6 @@
-import { randomBytes, scryptSync } from 'node:crypto';
-
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, StaffRole } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 function createPrismaAdapter() {
   const connectionString = process.env.DATABASE_URL;
@@ -19,9 +18,9 @@ const prisma = new PrismaClient({
 
 const DEFAULT_HQ_BRANCH_CODE = 'HQ';
 const DEFAULT_HQ_BRANCH_NAME = 'Headquarters';
-const DEFAULT_SUPERADMIN_EMAIL = 'superadmin@example.local';
-const DEFAULT_SUPERADMIN_NAME = 'Super Admin';
-const DEFAULT_SUPERADMIN_PASSWORD = 'ChangeMe123!';
+const DEFAULT_HQ_STAFF_EMAIL = 'hq.staff@example.local';
+const DEFAULT_HQ_STAFF_NAME = 'HQ Staff';
+const DEFAULT_HQ_STAFF_PASSWORD = 'ChangeMe123!';
 
 function getEnv(name: string, fallback: string) {
   const value = process.env[name]?.trim();
@@ -29,39 +28,33 @@ function getEnv(name: string, fallback: string) {
   return value && value.length > 0 ? value : fallback;
 }
 
-function resolveSuperadminEmail() {
-  const email = process.env.SUPERADMIN_EMAIL?.trim();
+function resolveHqStaffEmail() {
+  const email = process.env.HQ_STAFF_EMAIL?.trim();
 
   if (email) {
     return email;
   }
 
-  const username = process.env.SUPERADMIN_USERNAME?.trim();
+  const username = process.env.HQ_STAFF_USERNAME?.trim();
 
   if (!username) {
-    return DEFAULT_SUPERADMIN_EMAIL;
+    return DEFAULT_HQ_STAFF_EMAIL;
   }
 
   return username.includes('@') ? username : `${username}@example.local`;
 }
 
-function hashPassword(password: string) {
-  const salt = randomBytes(16).toString('hex');
-  const hash = scryptSync(password, salt, 64).toString('hex');
-
-  return `scrypt:${salt}:${hash}`;
+async function hashPassword(password: string) {
+  return bcrypt.hash(password, 10);
 }
 
 async function main() {
   const branchCode = getEnv('HQ_BRANCH_CODE', DEFAULT_HQ_BRANCH_CODE);
   const branchName = getEnv('HQ_BRANCH_NAME', DEFAULT_HQ_BRANCH_NAME);
-  const superadminEmail = resolveSuperadminEmail();
-  const superadminName = getEnv(
-    'SUPERADMIN_DISPLAY_NAME',
-    DEFAULT_SUPERADMIN_NAME,
-  );
-  const superadminPassword =
-    process.env.SUPERADMIN_PASSWORD?.trim() || DEFAULT_SUPERADMIN_PASSWORD;
+  const hqStaffEmail = resolveHqStaffEmail();
+  const hqStaffName = getEnv('HQ_STAFF_DISPLAY_NAME', DEFAULT_HQ_STAFF_NAME);
+  const hqStaffPassword =
+    process.env.HQ_STAFF_PASSWORD?.trim() || DEFAULT_HQ_STAFF_PASSWORD;
 
   const branch = await prisma.branch.upsert({
     where: { code: branchCode },
@@ -74,20 +67,20 @@ async function main() {
     },
   });
 
-  const existingSuperadmin = await prisma.staff.findUnique({
-    where: { email: superadminEmail },
+  const existingHqStaff = await prisma.staff.findUnique({
+    where: { email: hqStaffEmail },
   });
 
-  if (existingSuperadmin) {
+  if (existingHqStaff) {
     await prisma.staff.update({
-      where: { id: existingSuperadmin.id },
+      where: { id: existingHqStaff.id },
       data: {
         branchId: branch.id,
-        name: superadminName,
+        name: hqStaffName,
         role: StaffRole.HQ_STAFF,
         isActive: true,
-        ...(process.env.SUPERADMIN_PASSWORD?.trim()
-          ? { passwordHash: hashPassword(superadminPassword) }
+        ...(process.env.HQ_STAFF_PASSWORD?.trim()
+          ? { passwordHash: await hashPassword(hqStaffPassword) }
           : {}),
       },
     });
@@ -95,16 +88,16 @@ async function main() {
     await prisma.staff.create({
       data: {
         branchId: branch.id,
-        name: superadminName,
-        email: superadminEmail,
-        passwordHash: hashPassword(superadminPassword),
+        name: hqStaffName,
+        email: hqStaffEmail,
+        passwordHash: await hashPassword(hqStaffPassword),
         role: StaffRole.HQ_STAFF,
         isActive: true,
       },
     });
   }
 
-  console.log(`Seeded branch ${branchCode} and superadmin ${superadminEmail}`);
+  console.log(`Seeded branch ${branchCode} and HQ staff ${hqStaffEmail}`);
 }
 
 main()

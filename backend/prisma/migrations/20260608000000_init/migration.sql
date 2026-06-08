@@ -11,7 +11,7 @@ CREATE TYPE "public"."CompensationType" AS ENUM ('MAKEUP_CLASS', 'SEAT_CREDIT', 
 CREATE TYPE "public"."CompensationStatus" AS ENUM ('AVAILABLE', 'USED', 'CANCELLED');
 
 -- CreateEnum
-CREATE TYPE "public"."StaffRole" AS ENUM ('SUPER_ADMIN', 'HQ_STAFF', 'BRANCH_STAFF', 'TEACHER');
+CREATE TYPE "public"."StaffRole" AS ENUM ('HQ_STAFF', 'BRANCH_STAFF', 'TEACHER');
 
 -- CreateEnum
 CREATE TYPE "public"."AttendanceStatus" AS ENUM ('BOOKED', 'ATTEND', 'SKIP', 'ABSENT');
