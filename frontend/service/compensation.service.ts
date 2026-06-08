@@ -1,6 +1,6 @@
 "use client";
 
-import { buildQuery, http } from "@/lib/api-client";
+import { buildQuery, fetchAPI } from "@/lib/api-client";
 import { useApi } from "@/hooks/use-api";
 import type { Compensation, CompensationStatus } from "@/lib/types";
 
@@ -12,9 +12,12 @@ export interface CompensationFilters {
 
 export const compensationService = {
   list: (filters?: CompensationFilters) =>
-    http.get<Compensation[]>(`/compensations${buildQuery({ ...filters })}`),
+    fetchAPI<Compensation[]>(`/compensations${buildQuery({ ...filters })}`),
   updateStatus: (id: string, status: CompensationStatus) =>
-    http.patch<Compensation>(`/compensations/${id}/status`, { status }),
+    fetchAPI<Compensation>(`/compensations/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
 };
 
 /** Loads compensations, re-fetching whenever a filter changes. */

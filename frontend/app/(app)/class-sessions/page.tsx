@@ -6,12 +6,12 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ApiError } from "@/lib/api-client";
+import { useBranches } from "@/service/branch.service";
 import {
   classSessionService,
-  useBranches,
   useClassSessions,
-  useStaffs,
-} from "@/service";
+} from "@/service/class-session.service";
+import { useStaffs } from "@/service/staff.service";
 import { formatDateTime, toLocalInputValue, localInputToIso } from "@/utils/format";
 import {
   classSessionSchema,

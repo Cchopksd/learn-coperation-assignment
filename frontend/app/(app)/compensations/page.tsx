@@ -3,7 +3,11 @@
 import { useMemo, useState } from "react";
 
 import { ApiError } from "@/lib/api-client";
-import { compensationService, useCompensations, useStudents } from "@/service";
+import {
+  compensationService,
+  useCompensations,
+} from "@/service/compensation.service";
+import { useStudents } from "@/service/student.service";
 import { formatDate, titleCase } from "@/utils/format";
 import type {
   Compensation,

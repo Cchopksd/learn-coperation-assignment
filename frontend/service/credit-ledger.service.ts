@@ -1,6 +1,6 @@
 "use client";
 
-import { buildQuery, http } from "@/lib/api-client";
+import { buildQuery, fetchAPI } from "@/lib/api-client";
 import { useApi } from "@/hooks/use-api";
 import type { CreditLedgerEntry } from "@/lib/types";
 
@@ -13,7 +13,9 @@ export interface CreditLedgerFilters {
 
 export const creditLedgerService = {
   list: (filters?: CreditLedgerFilters) =>
-    http.get<CreditLedgerEntry[]>(`/credit-ledgers${buildQuery({ ...filters })}`),
+    fetchAPI<CreditLedgerEntry[]>(
+      `/credit-ledgers${buildQuery({ ...filters })}`,
+    ),
 };
 
 /** Loads credit ledger entries, re-fetching whenever a filter changes. */

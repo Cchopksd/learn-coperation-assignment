@@ -1,6 +1,6 @@
 "use client";
 
-import { http } from "@/lib/api-client";
+import { fetchAPI } from "@/lib/api-client";
 import { useApi } from "@/hooks/use-api";
 import type {
   ClassSession,
@@ -9,10 +9,13 @@ import type {
 } from "@/lib/types";
 
 export const classSessionService = {
-  list: () => http.get<ClassSession[]>("/class-sessions"),
-  get: (id: string) => http.get<ClassSessionDetail>(`/class-sessions/${id}`),
+  list: () => fetchAPI<ClassSession[]>("/class-sessions"),
+  get: (id: string) => fetchAPI<ClassSessionDetail>(`/class-sessions/${id}`),
   create: (input: CreateClassSessionInput) =>
-    http.post<ClassSession>("/class-sessions", input),
+    fetchAPI<ClassSession>("/class-sessions", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
 };
 
 /** Loads all class sessions with loading/error/reload state. */

@@ -4,7 +4,8 @@
 
 export const envConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
-  /** localStorage keys for persisted auth. */
+  /** Cookie name for the access token. */
   tokenStorageKey: "lc_access_token",
+  /** localStorage key for the mirrored staff profile. */
   staffStorageKey: "lc_auth_staff",
 } as const;

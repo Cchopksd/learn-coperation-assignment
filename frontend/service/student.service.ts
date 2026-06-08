@@ -1,6 +1,6 @@
 "use client";
 
-import { http } from "@/lib/api-client";
+import { fetchAPI } from "@/lib/api-client";
 import { useApi } from "@/hooks/use-api";
 import type {
   AdjustCreditInput,
@@ -12,15 +12,22 @@ import type {
 } from "@/lib/types";
 
 export const studentService = {
-  list: () => http.get<Student[]>("/students"),
-  get: (id: string) => http.get<Student>(`/students/${id}`),
-  create: (input: CreateStudentInput) => http.post<Student>("/students", input),
+  list: () => fetchAPI<Student[]>("/students"),
+  get: (id: string) => fetchAPI<Student>(`/students/${id}`),
+  create: (input: CreateStudentInput) =>
+    fetchAPI<Student>("/students", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
   adjustCredit: (id: string, input: AdjustCreditInput) =>
-    http.post<AdjustCreditResponse>(`/students/${id}/credits`, input),
+    fetchAPI<AdjustCreditResponse>(`/students/${id}/credits`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
   getLedger: (id: string) =>
-    http.get<CreditLedgerEntry[]>(`/students/${id}/ledger`),
+    fetchAPI<CreditLedgerEntry[]>(`/students/${id}/ledger`),
   getCompensations: (id: string) =>
-    http.get<Compensation[]>(`/students/${id}/compensations`),
+    fetchAPI<Compensation[]>(`/students/${id}/compensations`),
 };
 
 /** Loads all students with loading/error/reload state. */

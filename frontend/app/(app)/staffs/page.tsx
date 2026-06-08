@@ -5,7 +5,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ApiError } from "@/lib/api-client";
-import { staffService, useBranches, useStaffs } from "@/service";
+import { useBranches } from "@/service/branch.service";
+import { staffService, useStaffs } from "@/service/staff.service";
 import {
   STAFF_ROLES,
   staffSchema,

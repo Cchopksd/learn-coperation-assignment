@@ -4,16 +4,15 @@ import { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft } from "lucide-react";
 
 import { ApiError } from "@/lib/api-client";
-import {
-  bookingService,
-  useBranches,
-  useClassSession,
-  useCompensations,
-  useStaffs,
-  useStudents,
-} from "@/service";
+import { bookingService } from "@/service/booking.service";
+import { useBranches } from "@/service/branch.service";
+import { useClassSession } from "@/service/class-session.service";
+import { useCompensations } from "@/service/compensation.service";
+import { useStaffs } from "@/service/staff.service";
+import { useStudents } from "@/service/student.service";
 import { formatDateTime } from "@/utils/format";
 import { bookingSchema, type BookingFormValues } from "@/schema/booking.schema";
 import type {
@@ -91,7 +90,10 @@ export default function ClassSessionDetailPage({
         description="Book seats and mark attendance for this class."
         actions={
           <Link href="/class-sessions">
-            <Button variant="secondary">← Back to sessions</Button>
+            <Button variant="secondary" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" aria-hidden />
+              Back to sessions
+            </Button>
           </Link>
         }
       />

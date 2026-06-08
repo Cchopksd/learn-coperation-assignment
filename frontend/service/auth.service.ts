@@ -1,7 +1,10 @@
-import { http } from "@/lib/api-client";
+import { fetchAPI } from "@/lib/api-client";
 import type { LoginResponse } from "@/lib/types";
 
 export const authService = {
   login: (email: string, password: string) =>
-    http.post<LoginResponse>("/auth/login", { email, password }),
+    fetchAPI<LoginResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
 };

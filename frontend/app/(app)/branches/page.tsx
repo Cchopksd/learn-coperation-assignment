@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ApiError } from "@/lib/api-client";
-import { branchService, useBranches } from "@/service";
+import { branchService, useBranches } from "@/service/branch.service";
 import { formatDate } from "@/utils/format";
 import { branchSchema, type BranchFormValues } from "@/schema/branch.schema";
 import type { Branch } from "@/lib/types";

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 
-import { useCreditLedgers, useStudents } from "@/service";
+import { useCreditLedgers } from "@/service/credit-ledger.service";
+import { useStudents } from "@/service/student.service";
 import { formatDateTime, titleCase } from "@/utils/format";
 import type { CreditLedgerEntry, CreditLedgerReason } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";

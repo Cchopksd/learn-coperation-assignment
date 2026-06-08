@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ApiError } from "@/lib/api-client";
-import { studentService, useBranches, useStudents } from "@/service";
+import { useBranches } from "@/service/branch.service";
+import { studentService, useStudents } from "@/service/student.service";
 import { studentSchema, type StudentFormValues } from "@/schema/student.schema";
 import type { Branch, Student } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";

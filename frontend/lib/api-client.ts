@@ -1,6 +1,4 @@
-// Transport layer for the NestJS backend. The single HTTP client for the app.
-// Requests go to envConfig.apiBaseUrl (`/api`), which Next.js rewrites to the backend.
-// Domain endpoints live in `service/*.service.ts` and build on the `http` helpers below.
+import { deleteCookie, getCookie, setCookie } from "cookies-next/client";
 
 import { envConfig } from "@/config/env.config";
 
@@ -17,18 +15,39 @@ export class ApiError extends Error {
 }
 
 export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(TOKEN_KEY);
+  const value = getCookie(TOKEN_KEY);
+  return typeof value === "string" ? value : null;
 }
 
 export function setToken(token: string): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(TOKEN_KEY, token);
+  setCookie(TOKEN_KEY, token, {
+    path: "/",
+    maxAge: tokenMaxAge(token),
+    sameSite: "strict",
+    secure: typeof location !== "undefined" && location.protocol === "https:",
+  });
 }
 
 export function clearToken(): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(TOKEN_KEY);
+  deleteCookie(TOKEN_KEY, { path: "/" });
+}
+
+/** Seconds until the JWT's `exp`, so the cookie expires with the token. */
+function tokenMaxAge(token: string): number {
+  const fallback = 60 * 60 * 8;
+  try {
+    const payload = token.split(".")[1];
+    const json = JSON.parse(
+      atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
+    );
+    if (typeof json.exp === "number") {
+      const secs = json.exp - Math.floor(Date.now() / 1000);
+      return secs > 0 ? secs : 0;
+    }
+  } catch {
+    // Malformed token — fall through to the default lifetime.
+  }
+  return fallback;
 }
 
 /** Builds a `?a=b&c=d` query string, dropping undefined/empty values. */
@@ -42,7 +61,15 @@ export function buildQuery(params?: Record<string, string | undefined>): string 
   return qs ? `?${qs}` : "";
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+/**
+ * The single fetch entry point for every domain service. Prefixes the API base,
+ * attaches the bearer token, parses the response, and normalises failures into
+ * an `ApiError`. Services call this directly: `fetchAPI<T>(path, options)`.
+ */
+export async function fetchAPI<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -84,12 +111,3 @@ function extractMessage(body: unknown, status: number): string {
   if (typeof body === "string" && body) return body;
   return `Request failed (${status}).`;
 }
-
-/** Verb helpers shared by every domain service. */
-export const http = {
-  get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, data: unknown) =>
-    request<T>(path, { method: "POST", body: JSON.stringify(data) }),
-  patch: <T>(path: string, data: unknown) =>
-    request<T>(path, { method: "PATCH", body: JSON.stringify(data) }),
-};

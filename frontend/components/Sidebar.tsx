@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 import { NAV_ITEMS } from "@/config/navigation.config";
 import { useAuthStore } from "@/state/auth.store";
@@ -24,16 +25,18 @@ export function Sidebar() {
         {NAV_ITEMS.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 active
                   ? "bg-slate-900 text-white"
                   : "text-slate-600 hover:bg-slate-100"
               }`}
             >
+              <Icon className="h-4 w-4 shrink-0" aria-hidden />
               {item.label}
             </Link>
           );
@@ -51,7 +54,13 @@ export function Sidebar() {
             </p>
           </div>
         )}
-        <Button variant="secondary" size="sm" className="w-full" onClick={logout}>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="flex w-full items-center justify-center gap-2"
+          onClick={logout}
+        >
+          <LogOut className="h-4 w-4" aria-hidden />
           Log out
         </Button>
       </div>

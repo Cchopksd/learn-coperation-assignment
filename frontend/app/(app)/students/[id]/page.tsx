@@ -4,15 +4,16 @@ import { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft } from "lucide-react";
 
 import { ApiError } from "@/lib/api-client";
+import { useBranches } from "@/service/branch.service";
 import {
   studentService,
-  useBranches,
   useStudent,
   useStudentCompensations,
   useStudentLedger,
-} from "@/service";
+} from "@/service/student.service";
 import { formatDate, formatDateTime, titleCase } from "@/utils/format";
 import {
   adjustCreditSchema,
@@ -76,7 +77,10 @@ export default function StudentDetailPage({
         description="Student profile, credits, bookings and compensations."
         actions={
           <Link href="/students">
-            <Button variant="secondary">← Back to students</Button>
+            <Button variant="secondary" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" aria-hidden />
+              Back to students
+            </Button>
           </Link>
         }
       />

@@ -1,4 +1,4 @@
-import { http } from "@/lib/api-client";
+import { fetchAPI } from "@/lib/api-client";
 import type {
   Booking,
   CreateBookingInput,
@@ -6,10 +6,18 @@ import type {
 } from "@/lib/types";
 
 export const bookingService = {
-  create: (input: CreateBookingInput) => http.post<Booking>("/bookings", input),
+  create: (input: CreateBookingInput) =>
+    fetchAPI<Booking>("/bookings", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
   markAttendance: (
     bookingId: string,
     status: FinalAttendanceStatus,
     note?: string,
-  ) => http.patch<Booking>(`/bookings/${bookingId}/attendance`, { status, note }),
+  ) =>
+    fetchAPI<Booking>(`/bookings/${bookingId}/attendance`, {
+      method: "PATCH",
+      body: JSON.stringify({ status, note }),
+    }),
 };

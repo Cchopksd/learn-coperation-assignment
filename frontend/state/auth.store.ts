@@ -11,7 +11,7 @@ const STAFF_KEY = envConfig.staffStorageKey;
 
 interface AuthState {
   staff: AuthStaff | null;
-  /** false until the store has read persisted auth from localStorage. */
+  /** false until the store has read persisted auth on mount. */
   ready: boolean;
   hydrate: () => void;
   login: (email: string, password: string) => Promise<void>;
@@ -20,8 +20,8 @@ interface AuthState {
 
 /**
  * Global auth store. Holds the signed-in staff and exposes login/logout.
- * The access token lives in localStorage (read synchronously by the API client);
- * the staff profile is mirrored here and persisted alongside it.
+ * The access token lives in a cookie (read synchronously by the API client);
+ * the staff profile is mirrored here and persisted in localStorage alongside it.
  */
 export const useAuthStore = create<AuthState>((set) => ({
   staff: null,
