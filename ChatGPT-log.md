@@ -1,0 +1,1 @@
+https://chatgpt.com/g/g-p-6a265f0188088191a9fa34792080a18a-learn-coperation-assignment/project
