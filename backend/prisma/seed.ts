@@ -84,7 +84,7 @@ async function main() {
       data: {
         branchId: branch.id,
         name: superadminName,
-        role: StaffRole.SUPER_ADMIN,
+        role: StaffRole.HQ_ADMIN,
         isActive: true,
         ...(process.env.SUPERADMIN_PASSWORD?.trim()
           ? { passwordHash: hashPassword(superadminPassword) }
@@ -98,7 +98,7 @@ async function main() {
         name: superadminName,
         email: superadminEmail,
         passwordHash: hashPassword(superadminPassword),
-        role: StaffRole.SUPER_ADMIN,
+        role: StaffRole.HQ_STAFF,
         isActive: true,
       },
     });
