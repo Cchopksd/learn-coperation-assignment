@@ -1,7 +1,3 @@
-# Learn Cooperation Assignment
-
-School back-office application for managing branches, staff, students, class sessions, bookings, attendance, student credits, and compensations.
-
 The project is split into:
 
 - `backend` - NestJS API with Prisma and PostgreSQL
@@ -66,18 +62,6 @@ Password: ChangeMe123!
 
 If `HQ_STAFF_USERNAME` contains an email address, that value is used directly. Otherwise the seed script converts it to `<username>@example.local`.
 
-## Local Development
-
-You can also run the services manually.
-
-### 1. Start PostgreSQL
-
-Use Docker Compose for only the database:
-
-```bash
-docker compose up database
-```
-
 ### 2. Configure Backend Environment
 
 Create `backend/.env`:
@@ -123,7 +107,6 @@ npm run dev
 
 The frontend runs on http://localhost:3000.
 
-By default, the frontend proxies `/api/*` to `http://localhost:8080`. Override this with `BACKEND_URL` if needed:
 
 ```bash
 BACKEND_URL=http://localhost:8080 npm run dev
@@ -182,8 +165,6 @@ POST /auth/login
 GET /auth/me
 ```
 
-The frontend calls the backend through `/api/*`, and `frontend/next.config.ts` rewrites those requests to the backend service.
-
 ## Project Structure
 
 ```text
@@ -208,10 +189,3 @@ The frontend calls the backend through `/api/*`, and `frontend/next.config.ts` r
 |   `-- state/
 `-- docker-compose.yaml
 ```
-
-## Notes
-
-- `JWT_SECRET` is required in production.
-- Docker Compose runs migrations and seed data automatically through the `migrate` service.
-- The seed script upserts the HQ branch and HQ staff account, so it is safe to run more than once.
-- The browser uses same-origin `/api` requests; no backend CORS configuration is required for the default setup.
