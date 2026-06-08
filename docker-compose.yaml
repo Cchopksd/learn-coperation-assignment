@@ -1,0 +1,66 @@
+services:
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: school_backoffice_frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: school_backoffice_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: builder
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+      HQ_BRANCH_CODE: ${HQ_BRANCH_CODE:-HQ}
+      HQ_BRANCH_NAME: ${HQ_BRANCH_NAME:-Headquarters}
+      SUPERADMIN_USERNAME: ${SUPERADMIN_USERNAME:-superadmin}
+      SUPERADMIN_DISPLAY_NAME: ${SUPERADMIN_DISPLAY_NAME:-Super Admin}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD}
+    command:
+      ["sh", "-c", "npm run prisma:migrate:deploy && npm run prisma:seed"]
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:18-alpine
+    container_name: school_backoffice_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
