@@ -1,30 +1,22 @@
 "use client";
 
-import { use, useMemo, useState } from "react";
+import { use, useMemo } from "react";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 
-import { ApiError } from "@/lib/api-client";
 import { useBranches } from "@/service/branch.service";
 import {
-  studentService,
   useStudent,
   useStudentCompensations,
   useStudentLedger,
 } from "@/service/student.service";
 import { formatDate, formatDateTime, titleCase } from "@/utils/format";
-import {
-  adjustCreditSchema,
-  type AdjustCreditFormValues,
-} from "@/schema/credit.schema";
 import type {
   AttendanceStatus,
   CreditLedgerEntry,
 } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, Button, Field, Input, Textarea, LoadingState, ErrorState } from "@/components/ui";
+import { Card, Button, LoadingState, ErrorState } from "@/components/ui";
 import { DataTable, type Column } from "@/components/DataTable";
 import {
   AttendanceStatusBadge,
@@ -33,6 +25,9 @@ import {
   StatusBadge,
 } from "@/components/StatusBadge";
 import { CreditAmount } from "@/components/CreditAmount";
+import { Detail } from "@/components/students/Detail";
+import { SectionTitle } from "@/components/students/SectionTitle";
+import { AdjustCreditCard } from "@/components/students/AdjustCreditCard";
 
 export default function StudentDetailPage({
   params,
@@ -161,110 +156,6 @@ export default function StudentDetailPage({
         />
       </Card>
     </div>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div>
-      <dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt>
-      <dd className="mt-1 text-slate-800">{value}</dd>
-    </div>
-  );
-}
-
-function SectionTitle({ title }: { title: string }) {
-  return (
-    <h2 className="border-b border-slate-200 px-4 py-3 text-sm font-semibold text-slate-900">
-      {title}
-    </h2>
-  );
-}
-
-function AdjustCreditCard({
-  studentId,
-  onAdjusted,
-}: {
-  studentId: string;
-  onAdjusted: () => void;
-}) {
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [okMessage, setOkMessage] = useState<string | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<AdjustCreditFormValues>({
-    resolver: zodResolver(adjustCreditSchema),
-    defaultValues: { amount: "", reason: "", note: "" },
-  });
-
-  async function submit(values: AdjustCreditFormValues) {
-    setServerError(null);
-    setOkMessage(null);
-    try {
-      const combinedNote = [values.reason?.trim(), values.note?.trim()]
-        .filter(Boolean)
-        .join(" — ");
-      const res = await studentService.adjustCredit(studentId, {
-        amount: Number(values.amount),
-        note: combinedNote || undefined,
-      });
-      setOkMessage(`Done. New balance: ${res.student.creditBalance}.`);
-      reset();
-      onAdjusted();
-    } catch (err) {
-      setServerError(
-        err instanceof ApiError ? err.message : "Could not adjust credit.",
-      );
-    }
-  }
-
-  return (
-    <Card className="p-5">
-      <h2 className="mb-4 text-sm font-semibold text-slate-900">
-        Add / adjust credit
-      </h2>
-      <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
-        <Field
-          label="Amount"
-          required
-          hint="Positive to add, negative to deduct."
-          error={errors.amount?.message}
-        >
-          <Input
-            type="number"
-            step={1}
-            placeholder="e.g. 10 or -2"
-            {...register("amount")}
-          />
-        </Field>
-        <Field label="Reason" error={errors.reason?.message}>
-          <Input placeholder="e.g. Initial top-up" {...register("reason")} />
-        </Field>
-        <Field label="Note" error={errors.note?.message}>
-          <Textarea {...register("note")} />
-        </Field>
-        {serverError && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-            {serverError}
-          </p>
-        )}
-        {okMessage && (
-          <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
-            {okMessage}
-          </p>
-        )}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Apply adjustment"}
-        </Button>
-        <p className="text-xs text-slate-400">
-          Recorded as a MANUAL_ADJUSTMENT in the credit ledger.
-        </p>
-      </form>
-    </Card>
   );
 }
 
