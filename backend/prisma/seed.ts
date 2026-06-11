@@ -79,11 +79,9 @@ async function main() {
       data: {
         branchId: branch.id,
         name: hqStaffName,
+        passwordHash: await hashPassword(hqStaffPassword),
         role: StaffRole.HQ_STAFF,
         isActive: true,
-        ...(process.env.HQ_STAFF_PASSWORD?.trim()
-          ? { passwordHash: await hashPassword(hqStaffPassword) }
-          : {}),
       },
     });
   } else {

@@ -16,14 +16,17 @@ erDiagram
   BRANCH ||--o{ STUDENT : has
   BRANCH ||--o{ CLASS_SESSION : hosts
 
+  PARENT ||--|{ STUDENT : has
+  PARENT ||--o{ BOOKING : books_for
+
   STAFF ||--o{ STAFF : creates
   STAFF ||--o{ CLASS_SESSION : teaches
-  STAFF ||--o{ BOOKING : books
+  STAFF ||--o{ BOOKING : books_for
   STAFF ||--o{ BOOKING : marks
   STAFF ||--o{ STUDENT_CREDIT_LEDGER : creates
   STAFF ||--o{ ATTENDANCE_AUDIT_LOG : acts
 
-  STUDENT ||--o{ BOOKING : makes
+  STUDENT ||--o{ BOOKING : is_booked_for
   STUDENT ||--o{ STUDENT_CREDIT_LEDGER : owns
   STUDENT ||--o{ STUDENT_COMPENSATION : owns
 
@@ -54,9 +57,21 @@ erDiagram
     datetime updatedAt
   }
 
+  PARENT {
+    uuid id PK
+    string name
+    string email UK
+    string phone
+    string passwordHash
+    boolean isActive
+    datetime createdAt
+    datetime updatedAt
+  }
+
   STUDENT {
     uuid id PK
     uuid branchId FK
+    uuid parentId FK
     string name
     string email
     string phone
@@ -83,7 +98,8 @@ erDiagram
     uuid id PK
     uuid classSessionId FK
     uuid studentId FK
-    uuid bookedById FK
+    uuid bookedByStaffId FK
+    uuid bookedByParentId FK
     uuid markedById FK
     AttendanceStatus status
     datetime bookedAt
@@ -127,6 +143,13 @@ erDiagram
     datetime createdAt
   }
 ```
+
+Booking rules:
+
+- One parent can have multiple students, and each student belongs to one parent.
+- A parent can create a booking only for a student linked to that parent.
+- A booking is always for one student and one class session.
+- Exactly one of `bookedByStaffId` or `bookedByParentId` must be set to identify who created the booking.
 
 Key enums:
 

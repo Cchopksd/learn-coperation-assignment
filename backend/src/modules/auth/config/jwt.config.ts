@@ -1,13 +1,16 @@
 const DEVELOPMENT_JWT_SECRET = 'development-only-jwt-secret';
 
-export function getJwtSecret() {
-  const secret = process.env.JWT_SECRET?.trim();
+export function getJwtSecret(
+  configuredSecret = process.env.JWT_SECRET,
+  nodeEnv = process.env.NODE_ENV,
+) {
+  const secret = configuredSecret?.trim();
 
   if (secret) {
     return secret;
   }
 
-  if (process.env.NODE_ENV === 'production') {
+  if (nodeEnv === 'production') {
     throw new Error('JWT_SECRET is required to initialize authentication.');
   }
 

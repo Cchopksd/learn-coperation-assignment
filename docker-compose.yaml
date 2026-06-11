@@ -60,13 +60,15 @@ services:
         condition: service_healthy
 
   database:
-    image: postgres:18-alpine
+    image: postgres:16
     container_name: school_backoffice_db
     restart: unless-stopped
-    env_file:
-      - ./backend/.env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: school_backoffice
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
